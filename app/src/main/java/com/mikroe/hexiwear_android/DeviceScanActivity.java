@@ -100,12 +100,19 @@ public class DeviceScanActivity extends Activity {
 
     private static ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
+    //for other bluetooth device
+    private static ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristicsTwo= new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristics() {
         return mGattCharacteristics;
+    }
+    public static ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristicsTwo() {
+        return mGattCharacteristicsTwo;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +122,8 @@ public class DeviceScanActivity extends Activity {
     public static BluetoothLeService getBluetoothLeService() {
         return mBluetoothLeService;
     }
+
+    public static BluetoothLeService getBluetoothLeServiceTwo(){ return mBluetoothLeServiceTwo;}
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +190,8 @@ public class DeviceScanActivity extends Activity {
         mBluetoothLeServiceTwo=null;
         stopService(new Intent(DeviceScanActivity.this, NotificationService.class));
         mGattCharacteristics.clear();
+        //other
+        mGattCharacteristicsTwo.clear();
         unbindService(mServiceConnection);
     }
 
@@ -217,6 +228,7 @@ public class DeviceScanActivity extends Activity {
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>();
         mGattCharacteristics.clear();
+
         mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
         // Loops through available GATT Services.
@@ -331,6 +343,7 @@ public class DeviceScanActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                //// TODO: 9/9/2016 wait till both devices are connected 
                 mScanTitle.setText("connected");
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {

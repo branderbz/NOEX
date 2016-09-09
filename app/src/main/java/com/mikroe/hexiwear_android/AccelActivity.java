@@ -28,6 +28,7 @@ public class AccelActivity extends Activity {
     double minXValue = -0.3;
 
     private CustomProgress_Vertical progressBarX;
+    private CustomProgress_Vertical progressBarX2;
    // private CustomProgress_Vertical progressBarY;
    // private CustomProgress_Vertical progressBarZ;
 
@@ -43,6 +44,7 @@ public class AccelActivity extends Activity {
         uuidArray.add(HexiwearService.UUID_CHAR_ACCEL);
 
         progressBarX = (CustomProgress_Vertical) findViewById(R.id.accelProgressX);
+        progressBarX2 = (CustomProgress_Vertical) findViewById(R.id.accelProgressX2);
        // progressBarY = (CustomProgress_Vertical) findViewById(R.id.accelProgressY);
        //progressBarZ = (CustomProgress_Vertical) findViewById(R.id.accelProgressZ);
     }
@@ -54,7 +56,6 @@ public class AccelActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
-
         hexiwearService = new HexiwearService(uuidArray);
         hexiwearService.readCharStart(10);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -85,7 +86,7 @@ public class AccelActivity extends Activity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void displayCharData(String uuid, byte[] data) {
+    private void displayCharData(String uuid, byte[] data,String address) {
         int tmpLong;
         float tmpFloatX;
         float tmpFloatY;
@@ -100,15 +101,24 @@ public class AccelActivity extends Activity {
             tmpLong = (((int) data[1]) << 8) | (data[0] & 0xff);
             tmpFloatX = (float) tmpLong / 100;
 
+            if(address.equals(DeviceScanActivity.KWARP_ADDRESS)) {
+                progressBarX.setProgressTitle(String.valueOf(tmpFloatX) + "g");
+                tmpLong += (progressBarX.getProgressMax() >> 1);
+                if (tmpLong > progressBarX.getProgressMax()) {
+                    tmpLong = progressBarX.getProgressMax();
+                }
 
-            progressBarX.setProgressTitle(String.valueOf(tmpFloatX) + "g");
-            tmpLong += (progressBarX.getProgressMax() >> 1);
-            if (tmpLong > progressBarX.getProgressMax()) {
-                tmpLong = progressBarX.getProgressMax();
+                progressBarX.setProgressValue(tmpLong);
             }
+            if(address.equals(DeviceScanActivity.KWARP_ADDRESS_TWO)) {
+                progressBarX2.setProgressTitle(String.valueOf(tmpFloatX) + "g");
+                tmpLong += (progressBarX2.getProgressMax() >> 1);
+                if (tmpLong > progressBarX2.getProgressMax()) {
+                    tmpLong = progressBarX2.getProgressMax();
+                }
 
-            progressBarX.setProgressValue(tmpLong);
-
+                progressBarX2.setProgressValue(tmpLong);
+            }
 
             // NEED TO COUNT REPS AND TURN SCREEN GREEN AFTER X REPS. FIGURE OUT HOW TO SAMPLE SLOWER, LET THE COUNTER CHANGE TO A DIFFERENT VALUE FIRST, OR TAKE BREAK BETWEEN LOOPS
            // for (repCounter = 0; tmpLong < -0.4; repCounter++){
@@ -244,8 +254,10 @@ public class AccelActivity extends Activity {
 
                 byte[] data = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
                 String uuid = intent.getStringExtra(BluetoothLeService.EXTRA_CHAR);
+                //get BLE device that is sending the information
+                String address = intent.getStringExtra("ADDRESS");
 
-                displayCharData(uuid, data);
+                displayCharData(uuid, data, address);
             }
         }
     };

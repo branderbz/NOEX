@@ -34,6 +34,7 @@ public class HexiwearService {
     public static final String UUID_CHAR_MAGNET = "00002003-0000-1000-8000-00805f9b34fb";
 
     private BluetoothLeService mBluetoothLeService;
+    private BluetoothLeService mBluetoothLeServiceTwo;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
     private final ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<BluetoothGattCharacteristic>();
@@ -48,7 +49,10 @@ public class HexiwearService {
     public HexiwearService(ArrayList<String> uuidArray) {
         String uuidGat = null;
         mGattCharacteristics = DeviceScanActivity.getGattCharacteristics();
+
         mBluetoothLeService  = DeviceScanActivity.getBluetoothLeService();
+        //get second bluetooth device
+        mBluetoothLeServiceTwo= DeviceScanActivity.getBluetoothLeServiceTwo();
 
         for(int cnt = 0; cnt < mGattCharacteristics.size(); cnt++) {
             for(int cnt1 = 0; cnt1 < mGattCharacteristics.get(cnt).size(); cnt1++) {
@@ -87,7 +91,9 @@ public class HexiwearService {
             final int charaProp = characteristic.getProperties();
 
             if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                while(mBluetoothLeService.readCharacteristic(characteristic) == false) {
+
+                //TODO: add second device
+                while(mBluetoothLeService.readCharacteristic(characteristic) == false && mBluetoothLeServiceTwo.readCharacteristic(characteristic)==false) {
                     try {
                         Thread.sleep(50);
                     }
