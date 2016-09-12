@@ -141,12 +141,10 @@ public class BluetoothLeService extends Service {
         String uuid = null;
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
+
             intent.putExtra(EXTRA_DATA, data);
             uuid = characteristic.getUuid().toString();
             intent.putExtra(EXTRA_CHAR, new String(uuid));
-            //send address of bluetooth device when updated, used to differentiate what device is sending stuff
-            //TODO: make address a final
-            intent.putExtra("ADDRESS",mBluetoothDeviceAddress);
         }
 
         sendBroadcast(intent);

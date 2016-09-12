@@ -70,25 +70,18 @@ public class DeviceScanActivity extends Activity {
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
 
-    public static final String UUID_CHAR_ALERTIN = "00002031-0000-1000-8000-00805f9b34fb";
+    public static final String UUID_CHAR_ALERTIN       = "00002031-0000-1000-8000-00805f9b34fb";
     private BluetoothGattCharacteristic alertInCharacteristic;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
-    public static final String KWARP_ADDRESS = "00:48:40:0B:00:2B";//change to specific device's address
-    /*
-    other hex address
-     */
-    public static final String KWARP_ADDRESS_TWO = "00:39:40:0A:00:07"; //TODO: get addres of second hex
+   // public static final String KWARP_ADDRESS = "00:48:40:0B:00:2B";//change to specific device's address
+
+    public String KWARP_ADDRESS;
 
     private TextView mScanTitle;
 
     private String mDeviceAddress;
-
-    /*
-    other hex address
-     */
-    private String mDeviceAddressTwo;
 
     private BluetoothGattCharacteristic mNotifyCharacteristic;
 
@@ -96,13 +89,7 @@ public class DeviceScanActivity extends Activity {
     private final String LIST_UUID = "UUID";
 
     private static BluetoothLeService mBluetoothLeService;
-    private static BluetoothLeService mBluetoothLeServiceTwo;
-
     private static ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-
-    //for other bluetooth device
-    private static ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristicsTwo= new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,9 +97,6 @@ public class DeviceScanActivity extends Activity {
 
     public static ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristics() {
         return mGattCharacteristics;
-    }
-    public static ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristicsTwo() {
-        return mGattCharacteristicsTwo;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,8 +106,6 @@ public class DeviceScanActivity extends Activity {
     public static BluetoothLeService getBluetoothLeService() {
         return mBluetoothLeService;
     }
-
-    public static BluetoothLeService getBluetoothLeServiceTwo(){ return mBluetoothLeServiceTwo;}
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +118,6 @@ public class DeviceScanActivity extends Activity {
         mHandler = new Handler();
         mScanTitle = (TextView) findViewById(R.id.scanTitle);
         mDeviceAddress = KWARP_ADDRESS;
-        mDeviceAddressTwo = KWARP_ADDRESS_TWO;
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -187,11 +168,8 @@ public class DeviceScanActivity extends Activity {
         super.onDestroy();
         unregisterReceiver(mGattUpdateReceiver);
         mBluetoothLeService = null;
-        mBluetoothLeServiceTwo=null;
         stopService(new Intent(DeviceScanActivity.this, NotificationService.class));
         mGattCharacteristics.clear();
-        //other
-        mGattCharacteristicsTwo.clear();
         unbindService(mServiceConnection);
     }
 
@@ -228,7 +206,6 @@ public class DeviceScanActivity extends Activity {
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>();
         mGattCharacteristics.clear();
-
         mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
         // Loops through available GATT Services.
@@ -297,10 +274,9 @@ public class DeviceScanActivity extends Activity {
             String text = intent.getStringExtra("text");
 
             if(
-                    (alertInCharacteristic != null) &&
-                            (mBluetoothLeService != null) &&
-                            (mBluetoothLeServiceTwo != null)
-                    )
+                (alertInCharacteristic != null) &&
+                (mBluetoothLeService != null)
+              )
             {
                 int charaProp = alertInCharacteristic.getProperties();
                 if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
@@ -308,14 +284,6 @@ public class DeviceScanActivity extends Activity {
                     alertInCharacteristic.setValue(bytes);
 
                     while(mBluetoothLeService.writeNoResponseCharacteristic(alertInCharacteristic) == false) {
-                        try {
-                            Thread.sleep(50);
-                        }
-                        catch (InterruptedException e) {
-                            Log.e(TAG, "InterruptedException");
-                        }
-                    }
-                    while(mBluetoothLeServiceTwo.writeNoResponseCharacteristic(alertInCharacteristic) == false) {
                         try {
                             Thread.sleep(50);
                         }
@@ -343,7 +311,6 @@ public class DeviceScanActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                //// TODO: 9/9/2016 wait till both devices are connected 
                 mScanTitle.setText("connected");
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -351,13 +318,12 @@ public class DeviceScanActivity extends Activity {
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
-                displayGattServices(mBluetoothLeServiceTwo.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 ;
             }
             else if(
                     (BluetoothLeService.ACTION_WRITE_RESPONSE_OK.equals(action)) ||
-                            (BluetoothLeService.ACTION_WRITE_RESPONSE_ERROR.equals(action))
+                    (BluetoothLeService.ACTION_WRITE_RESPONSE_ERROR.equals(action))
                     ) {
                 ;
             }
@@ -398,25 +364,17 @@ public class DeviceScanActivity extends Activity {
     // Device scan callback.
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+        new BluetoothAdapter.LeScanCallback() {
 
-                    if(device.getAddress().equals(KWARP_ADDRESS)) {
-                        Log.e(TAG, "HEX 1 connected");
-                        mBluetoothLeService.connect(mDeviceAddress);
-                        //scanLeDevice(false);//TODO: continue to scan until both bluetooth devices are found
-                    }
-                /*
-                add second device
-                 */
-                    if(device.getAddress().equals(KWARP_ADDRESS_TWO)){
-                        Log.e(TAG, "Hex 2 Connected");
-                        mBluetoothLeServiceTwo.connect(mDeviceAddressTwo);
-                        scanLeDevice(false);
-                    }
+            @Override
+            public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+
+                if(device.getAddress().equals(KWARP_ADDRESS)) {
+                    mBluetoothLeService.connect(mDeviceAddress);
+                    scanLeDevice(false);
                 }
-            };
+            }
+        };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -453,20 +411,16 @@ public class DeviceScanActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            mBluetoothLeServiceTwo = ((BluetoothLeService.LocalBinder) service).getService();
-
-            if ((!mBluetoothLeService.initialize()) &&(!mBluetoothLeServiceTwo.initialize()) ) {
+            if (!mBluetoothLeService.initialize()) {
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
-            mBluetoothLeServiceTwo.connect(mDeviceAddressTwo);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mBluetoothLeService = null;
-            mBluetoothLeServiceTwo = null;
         }
     };
 

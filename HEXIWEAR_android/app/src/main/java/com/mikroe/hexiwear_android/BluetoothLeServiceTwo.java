@@ -21,7 +21,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -29,19 +28,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.List;
-import java.util.UUID;
 
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-public class BluetoothLeService extends Service {
-    private final static String TAG = BluetoothLeService.class.getSimpleName();
+public class BluetoothLeServiceTwo extends Service {
+    private final static String TAG = BluetoothLeServiceTwo.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -153,8 +150,8 @@ public class BluetoothLeService extends Service {
     }
 
     public class LocalBinder extends Binder {
-        BluetoothLeService getService() {
-            return BluetoothLeService.this;
+        BluetoothLeServiceTwo getService() {
+            return BluetoothLeServiceTwo.this;
         }
     }
 
@@ -313,7 +310,6 @@ public class BluetoothLeService extends Service {
      */
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
-
         return mBluetoothGatt.getServices();
     }
 }
