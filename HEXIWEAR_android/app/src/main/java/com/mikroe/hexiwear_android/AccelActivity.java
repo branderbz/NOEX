@@ -255,7 +255,7 @@ public class AccelActivity extends Activity {
                 byte[] data = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
                 String uuid = intent.getStringExtra(BluetoothLeService.EXTRA_CHAR);
                 //get BLE device that is sending the information
-                String address = intent.getStringExtra("ADDRESS");
+                String address = intent.getStringExtra(BluetoothLeService.EXTRA_ADDRESS);
 
                 displayCharData(uuid, data, address);
             }
