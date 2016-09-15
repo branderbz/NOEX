@@ -147,7 +147,6 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-
         final byte[] data = characteristic.getValue();
         String uuid = null;
         if (data != null && data.length > 0) {
@@ -155,9 +154,7 @@ public class BluetoothLeService extends Service {
             intent.putExtra(EXTRA_DATA, data);
             uuid = characteristic.getUuid().toString();
             intent.putExtra(EXTRA_CHAR, new String(uuid));
-            //send address of bluetooth device when updated, used to differentiate what device is sending stuff
-            //TODO: make address a final
-            //intent.putExtra(EXTRA_ADDRESS,characteristic);
+
         }
 
         sendBroadcast(intent);
@@ -334,7 +331,6 @@ public class BluetoothLeService extends Service {
                 return;
             }
             bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
-
         }
     }
 
@@ -349,8 +345,9 @@ public class BluetoothLeService extends Service {
         List<List<BluetoothGattService>> supportedGattServices = new ArrayList<>();
         if (mBluetoothGatts == null) return null;
         else{
-            for(BluetoothGatt bluetoothGatt : mBluetoothGatts)
+            for(BluetoothGatt bluetoothGatt : mBluetoothGatts ){
                 supportedGattServices.add(bluetoothGatt.getServices());
+            }
         }
         return supportedGattServices;
     }

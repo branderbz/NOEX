@@ -209,16 +209,15 @@ public class DeviceScanActivity extends Activity {
     //TODO see if this works
     private void displayGattServices(List<List<BluetoothGattService>> devicesGattServices) {
         if (devicesGattServices == null) return;
+
         String uuid = null;
-        String unknownServiceString = getResources().getString(R.string.unknown_service);
-        String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>();
         mGattCharacteristics.clear();
 
         mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
-        for(List<BluetoothGattService> gattServices :devicesGattServices) {
+        for(List<BluetoothGattService> gattServices : devicesGattServices) {
             // Loops through available GATT Services.
             for (BluetoothGattService gattService : gattServices) {
                 HashMap<String, String> currentServiceData = new HashMap<String, String>();
@@ -376,8 +375,12 @@ public class DeviceScanActivity extends Activity {
             new BluetoothAdapter.LeScanCallback() {
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    mBluetoothLeService.connect(mDeviceAddresses);
-                    scanLeDevice(false);
+                    // giving me null ref on ble service, so i added this condition to make sure it is initialized
+                    if(mBluetoothLeService.initialize()) {
+                        mBluetoothLeService.connect(mDeviceAddresses);
+                        scanLeDevice(false);
+                    }
+
                 }
             };
 
