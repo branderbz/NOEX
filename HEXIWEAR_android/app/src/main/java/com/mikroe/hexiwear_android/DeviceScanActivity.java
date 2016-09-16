@@ -76,11 +76,11 @@ public class DeviceScanActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 1;
 
-    public static final String KWARP_ADDRESS = "00:48:40:0B:00:2B";//change to specific device's address
+    public static final String KWARP_ADDRESS = "00:39:40:0A:00:07";//change to specific device's address
     /*
     other hex address
      */
-    public static final String KWARP_ADDRESS_TWO = "00:39:40:0A:00:07"; //TODO: get addres of second hex
+    public static final String KWARP_ADDRESS_TWO = "00:48:40:0B:00:2B"; //TODO: get addres of second hex
 
     private TextView mScanTitle;
 
@@ -94,14 +94,14 @@ public class DeviceScanActivity extends Activity {
 
     private static BluetoothLeService mBluetoothLeService;
 
-    private static ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+    private static ArrayList<ArrayList<ArrayList<BluetoothGattCharacteristic>>> mGattsCharacteristics = new ArrayList<>();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristics() {
-        return mGattCharacteristics;
+    public static ArrayList<ArrayList<ArrayList<BluetoothGattCharacteristic>>> getGattsCharacteristics() {
+        return mGattsCharacteristics;
     }
 
 
@@ -154,7 +154,7 @@ public class DeviceScanActivity extends Activity {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
         }
-        checkNotificationEnabled();
+        //checkNotificationEnabled();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         ComponentName name = startService(new Intent(DeviceScanActivity.this, NotificationService.class));
@@ -177,7 +177,7 @@ public class DeviceScanActivity extends Activity {
         unregisterReceiver(mGattUpdateReceiver);
         mBluetoothLeService = null;
         stopService(new Intent(DeviceScanActivity.this, NotificationService.class));
-        mGattCharacteristics.clear();
+        mGattsCharacteristics.clear();
         //other
         unbindService(mServiceConnection);
     }
@@ -213,9 +213,9 @@ public class DeviceScanActivity extends Activity {
         String uuid = null;
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>();
-        mGattCharacteristics.clear();
+        ArrayList<ArrayList<BluetoothGattCharacteristic>> tempGattCharacteristics = new ArrayList<>();
+        mGattsCharacteristics.clear();
 
-        mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
         for(List<BluetoothGattService> gattServices : devicesGattServices) {
             // Loops through available GATT Services.
@@ -243,9 +243,10 @@ public class DeviceScanActivity extends Activity {
                     currentCharaData.put(LIST_UUID, uuid);
                     gattCharacteristicGroupData.add(currentCharaData);
                 }
-                mGattCharacteristics.add(charas);
+                tempGattCharacteristics.add(charas);
                 gattCharacteristicData.add(gattCharacteristicGroupData);
             }
+            mGattsCharacteristics.add(tempGattCharacteristics);
         }
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -375,10 +376,21 @@ public class DeviceScanActivity extends Activity {
             new BluetoothAdapter.LeScanCallback() {
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    // giving me null ref on ble service, so i added this condition to make sure it is initialized
-                    if(mBluetoothLeService.initialize()) {
-                        mBluetoothLeService.connect(mDeviceAddresses);
-                        scanLeDevice(false);
+                    //if the device is registered in the list of devices
+                    if(mDeviceAddresses.contains(device.getAddress())) {
+                        // giving me null ref on ble service, so i added this condition to make sure it is initialized
+                        //TODO fix this
+                        try {
+                            if (mBluetoothLeService.initialize()) {
+                                mBluetoothLeService.connect(mDeviceAddresses);
+                                //keep looping till both devices are connected
+                                if (mBluetoothLeService.getDevicesConnected() == 2)
+                                    scanLeDevice(false);
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
                     }
 
                 }
