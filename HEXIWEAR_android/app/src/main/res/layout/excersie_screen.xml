@@ -11,7 +11,7 @@
         android:id="@+id/exercise_name_text_view"
         android:gravity="center"
         android:text="Exercise Name"
-        android:textSize="40dp"
+        android:textSize="40sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
         android:id="@+id/rep_counter_title_text_view"
         android:text="Reps:"
         android:gravity="center"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
@@ -27,14 +27,14 @@
         android:id="@+id/rep_counter_text_view"
         android:gravity="center"
         android:text="reps_done"
-        android:textSize="20dp"/>
+        android:textSize="20sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/min_angle_title_text_view"
         android:gravity="center"
         android:text="Min angle:"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
@@ -42,44 +42,44 @@
         android:id="@+id/min_angle_text_view"
         android:gravity="center"
         android:text="min_angle"
-        android:textSize="20dp"/>
+        android:textSize="20sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/actual_degree_title_text_view"
+        android:id="@+id/actual_angle_title_text_view"
         android:gravity="center"
-        android:text="Actual Degree"
-        android:textSize="30dp"
+        android:text="Actual Angle"
+        android:textSize="30sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/actual_degree_text_view"
+        android:id="@+id/actual_angle_text_view"
         android:gravity="center"
-        android:text="actual_degree"
-        android:textSize="40dp"/>
+        android:text="actual_angle"
+        android:textSize="40sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/max_degree_title_text_view"
+        android:id="@+id/max_angle_title_text_view"
         android:gravity="center"
-        android:text="Max Degree"
-        android:textSize="30dp"
+        android:text="Max Angle"
+        android:textSize="30sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/max_degree_text_view"
+        android:id="@+id/max_angle_text_view"
         android:gravity="center"
-        android:text="max_degree"
-        android:textSize="20dp"/>
+        android:text="max_angle"
+        android:textSize="20sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/set_title_text_view"
         android:gravity="center"
         android:text="Set:"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"/>
     <TextView
         android:layout_width="match_parent"
@@ -87,23 +87,21 @@
         android:id="@+id/set_text_view"
         android:gravity="center"
         android:text="set"
-        android:textSize="20dp"/>
+        android:textSize="20sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/elapsed_time_title_text_view"
         android:gravity="center"
         android:text="Elapsed Time"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/elapsed_time_text_view"
-        android:gravity="center"
-        android:text="elapsed_time"
-        android:textSize="20dp"/>
 
+    <Chronometer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/elapsed_time_chronometer"
+        android:layout_gravity="center_horizontal" />
 
 
 </LinearLayout>

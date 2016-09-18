@@ -50,7 +50,7 @@ public class MainScreenActivity extends Activity {
     }
 
     public void startAccelScreen(View view) {
-        Intent intentAct = new Intent(MainScreenActivity.this, AccelActivity.class);
+        Intent intentAct = new Intent(MainScreenActivity.this, ExerciseActivity.class);
         startActivity(intentAct);
     }
 

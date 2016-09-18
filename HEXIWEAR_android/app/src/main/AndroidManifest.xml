@@ -68,7 +68,7 @@
         </activity>
         <activity android:name=".GyroscopeActivity" >
         </activity>
-        <activity android:name=".AccelActivity" >
+        <activity android:name=".ExerciseActivity" >
         </activity>
         <activity android:name=".WeatherActivity" >
         </activity>
