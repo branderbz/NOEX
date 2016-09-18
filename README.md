@@ -1,5 +1,5 @@
-<p align = "center>
-  <img src = "img/logo.png" alt = "Noex Logo" width = "733" height = "441" />
+<p align = "center">
+  <img src = "https://github.com/branderbz/NOEX/blob/master/img/logo.PNG" alt = "Noex Logo" width = "433" height = "241" />
 </p>
 # NOEX
 Noex is a startup developing wearable fitness trackers to provide physical therapy patients instant feedback on their recovery.
