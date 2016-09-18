@@ -5,18 +5,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
+
+
+/*TODO:
+
+rep counter,
+just display pitch
+
+ */
 public class AccelActivity extends Activity {
 
     int i = 0;
@@ -27,10 +31,30 @@ public class AccelActivity extends Activity {
     double maxXValue = 0.3;
     double minXValue = -0.3;
 
-    private CustomProgress_Vertical progressBarX;
-    private CustomProgress_Vertical progressBarX2;
+
+    //10 0 45 degress
+    double pitchDiff = 0.0;
+    double rollDiff = 0.0;
+
+    double pitchOne= 0.0;
+    double rollOne = 0.0;
+
+    double pitchTwo = 0.0;
+    double rollTwo = 0.0;
+
+    //private CustomProgress_Vertical progressBarX;
+    //private CustomProgress_Vertical progressBarX2;
    // private CustomProgress_Vertical progressBarY;
    // private CustomProgress_Vertical progressBarZ;
+
+    private TextView xValueOneHexOne;
+    private TextView xValueOneHexTwo;
+    private TextView xValueTwoHexOne;
+    private TextView xValueTwoHexTwo;
+
+    private TextView diffPitch;
+    private TextView diffRoll;
+
 
     private HexiwearService hexiwearService;
 
@@ -39,12 +63,23 @@ public class AccelActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.accel_screen);
+        setContentView(R.layout.test_accel_screen);
 
         uuidArray.add(HexiwearService.UUID_CHAR_ACCEL);
 
+
+        xValueOneHexOne = (TextView) findViewById(R.id.xValueOneHexOne);
+        xValueTwoHexOne = (TextView) findViewById(R.id.xValueTwoHexOne);
+        xValueOneHexTwo = (TextView) findViewById(R.id.xValueOneHexTwo);
+        xValueTwoHexTwo = (TextView) findViewById(R.id.xValueTwoHexTwo);
+
+        diffPitch = (TextView) findViewById(R.id.diffPitch);
+        diffRoll = (TextView) findViewById(R.id.diffRoll);
+
+        /* TODO: REMOVE
         progressBarX = (CustomProgress_Vertical) findViewById(R.id.accelProgressX);
         progressBarX2 = (CustomProgress_Vertical) findViewById(R.id.accelProgressX2);
+        */
        // progressBarY = (CustomProgress_Vertical) findViewById(R.id.accelProgressY);
        //progressBarZ = (CustomProgress_Vertical) findViewById(R.id.accelProgressZ);
     }
@@ -57,7 +92,8 @@ public class AccelActivity extends Activity {
     protected void onResume() {
         super.onResume();
         hexiwearService = new HexiwearService(uuidArray);
-        hexiwearService.readCharStart(10);
+        //TODO changed this from 10 to 100
+        hexiwearService.readCharStart(100);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
@@ -87,29 +123,56 @@ public class AccelActivity extends Activity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void displayCharData(String uuid, byte[] data, String address) {
-        int tmpLong;
+        double tmpLongX;
+        double tmpLongY;
+        double tmpLongZ;
+        double roll;
+        double pitch;
         float tmpFloatX;
         float tmpFloatY;
         float tmpFloatZ;
 
         //set up time zone to append to data string
         //String[] ids = TimeZone.getAvailableIDs(-5 * 60 * 60 * 1000);
-       // SimpleTimeZone est = new SimpleTimeZone(-5 * 60 * 60 * 1000, ids[0]);
+        // SimpleTimeZone est = new SimpleTimeZone(-5 * 60 * 60 * 1000, ids[0]);
 
 
         if (uuid.equals(HexiwearService.UUID_CHAR_ACCEL)) {
-            tmpLong = (((int) data[1]) << 8) | (data[0] & 0xff);
-            tmpFloatX = (float) tmpLong / 100;
+            tmpLongX = (((int) data[1]) << 8) | (data[0] & 0xff);
+            tmpLongY = (((int) data[3]) << 8) | (data[2] & 0xff);
+            tmpLongZ = (((int) data[5]) << 8) | (data[4] & 0xff);
+            //tmpFloatX = (float) tmpLongX / 100;
+
+            roll = Math.round(Math.atan2(-tmpLongY, tmpLongZ)*180.0/3.14159265359);
+            pitch = Math.round(Math.atan2(tmpLongX, Math.sqrt(tmpLongY*tmpLongY + tmpLongZ*tmpLongZ))*180.0/3.14159265359);
+
 
             if(address.equals(DeviceScanActivity.KWARP_ADDRESS)) {
-                progressBarX.setProgressTitle(String.valueOf(tmpFloatX) + "g");
-                tmpLong += (progressBarX.getProgressMax() >> 1);
-                if (tmpLong > progressBarX.getProgressMax()) {
-                    tmpLong = progressBarX.getProgressMax();
-                }
-
-                progressBarX.setProgressValue(tmpLong);
+                xValueOneHexOne.setText("Roll = " + roll);
+                xValueOneHexOne.postInvalidate();
+                xValueTwoHexOne.setText("Pitch = " + pitch);
+                xValueTwoHexOne.postInvalidate();
+                pitchOne = pitch;
+                rollOne = roll;
             }
+            else if(address.equals(DeviceScanActivity.KWARP_ADDRESS_TWO)){
+                xValueOneHexTwo.setText("Roll = " + roll);
+                xValueOneHexTwo.postInvalidate();
+                xValueTwoHexTwo.setText("Pitch = " + pitch);
+                xValueTwoHexTwo.postInvalidate();
+                pitchTwo = pitch;
+                rollTwo = roll;
+            }
+
+            pitchDiff = pitchOne - pitchTwo;
+            rollDiff = rollOne - rollTwo;
+
+            diffPitch.setText("diffPitch = "+pitchDiff);
+            diffPitch.postInvalidate();
+            diffRoll.setText("diffRoll = "+rollDiff);
+            diffRoll.postInvalidate();
+
+            /*
             if(address.equals(DeviceScanActivity.KWARP_ADDRESS_TWO)) {
                 progressBarX2.setProgressTitle(String.valueOf(tmpFloatX) + "g");
                 tmpLong += (progressBarX2.getProgressMax() >> 1);
@@ -119,12 +182,12 @@ public class AccelActivity extends Activity {
 
                 progressBarX2.setProgressValue(tmpLong);
             }
-
+        */
             // NEED TO COUNT REPS AND TURN SCREEN GREEN AFTER X REPS. FIGURE OUT HOW TO SAMPLE SLOWER, LET THE COUNTER CHANGE TO A DIFFERENT VALUE FIRST, OR TAKE BREAK BETWEEN LOOPS
            // for (repCounter = 0; tmpLong < -0.4; repCounter++){
 
            // }
-            if (tmpFloatX > maxXValue && i!=5) {
+           /* if (tmpFloatX > maxXValue && i!=5) {
                 i=5; //flag if it's the first time tmplongx is smaller larger than minXvalue in this rep
                // Toast.makeText(getApplicationContext(), "floatX > maxX", Toast.LENGTH_SHORT).show();
             }
