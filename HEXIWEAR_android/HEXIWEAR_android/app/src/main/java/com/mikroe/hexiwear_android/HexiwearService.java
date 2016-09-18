@@ -34,9 +34,9 @@ public class HexiwearService {
     public static final String UUID_CHAR_MAGNET = "00002003-0000-1000-8000-00805f9b34fb";
 
     private BluetoothLeService mBluetoothLeService;
-    private ArrayList<ArrayList<ArrayList<BluetoothGattCharacteristic>>> mGattsCharacteristics = new ArrayList<>();
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
-    private final ArrayList<ArrayList<BluetoothGattCharacteristic>> charas = new ArrayList<>();
+    private final ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<BluetoothGattCharacteristic>();
 
     private int charCnt = 0;
     private Timer myTimer;
@@ -47,24 +47,21 @@ public class HexiwearService {
 
     public HexiwearService(ArrayList<String> uuidArray) {
         String uuidGat = null;
-        mGattsCharacteristics = DeviceScanActivity.getGattsCharacteristics();
+        mGattCharacteristics = DeviceScanActivity.getGattCharacteristics();
         mBluetoothLeService  = DeviceScanActivity.getBluetoothLeService();
-        for(ArrayList<ArrayList<BluetoothGattCharacteristic>> gattCharacteristics : mGattsCharacteristics) {
-            ArrayList<BluetoothGattCharacteristic> tempCharas = new ArrayList<>();
-            for (int cnt = 0; cnt < gattCharacteristics.size(); cnt++) {
-                for (int cnt1 = 0; cnt1 < gattCharacteristics.get(cnt).size(); cnt1++) {
-                    BluetoothGattCharacteristic characteristic = gattCharacteristics.get(cnt).get(cnt1);
-                    uuidGat = characteristic.getUuid().toString();
 
-                    for (String uuid : uuidArray) {
-                        if (uuid.equals(uuidGat)) {
-                            tempCharas.add(characteristic);
-                            break;
-                        }
+        for(int cnt = 0; cnt < mGattCharacteristics.size(); cnt++) {
+            for(int cnt1 = 0; cnt1 < mGattCharacteristics.get(cnt).size(); cnt1++) {
+                BluetoothGattCharacteristic characteristic = mGattCharacteristics.get(cnt).get(cnt1);
+                uuidGat = characteristic.getUuid().toString();
+
+                for (String uuid : uuidArray) {
+                    if(uuid.equals(uuidGat)) {
+                        charas.add(characteristic);
+                        break;
                     }
                 }
             }
-            charas.add(tempCharas);
         }
     }
 
@@ -74,11 +71,9 @@ public class HexiwearService {
 
     private class ReadCharTask extends TimerTask {
         public void run() {
-            for(ArrayList<BluetoothGattCharacteristic> chars : charas) {
-                readCharacteristic(chars.get(charCnt++));
-                if (charCnt == chars.size()) {
-                    charCnt = 0;
-                }
+            readCharacteristic(charas.get(charCnt++));
+            if (charCnt == charas.size()) {
+                charCnt = 0;
             }
         }
     }
@@ -92,7 +87,6 @@ public class HexiwearService {
             final int charaProp = characteristic.getProperties();
 
             if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-
                 while(mBluetoothLeService.readCharacteristic(characteristic) == false) {
                     try {
                         Thread.sleep(50);
