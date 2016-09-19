@@ -76,11 +76,8 @@ public class DeviceScanActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 1;
 
-    public static final String KWARP_ADDRESS = "00:39:40:0A:00:07";//change to specific device's address
-    /*
-    other hex address
-     */
-    public static final String KWARP_ADDRESS_TWO = "00:48:40:0B:00:2B"; //TODO: get addres of second hex
+    public static final String KWARP_ADDRESS = "00:39:40:0A:00:07";
+    public static final String KWARP_ADDRESS_TWO = "00:48:40:0B:00:2B";
 
     private TextView mScanTitle;
 
